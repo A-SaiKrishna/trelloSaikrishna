@@ -15,7 +15,13 @@ let Boards = ({ data }) => {
                 style={{
                   width: "12rem",
                   height: "8rem",
-                  backgroundColor: obj.prefs.backgroundColor,
+                  backgroundColor: obj.prefs.backgroundColor
+                    ? obj.prefs.backgroundColor
+                    : "white",
+                  backgroundImage: `URL(${obj.prefs.backgroundImage})`,
+                  backgroundSize: "cover",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
                 }}
               >
                 <h1 style={{ color: "black", textDecoration: "none" }}>

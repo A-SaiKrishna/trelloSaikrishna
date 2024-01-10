@@ -8,6 +8,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
+import { Link } from "react-router-dom";
 
 let UseDrawer = () => {
   return (
@@ -16,12 +17,14 @@ let UseDrawer = () => {
         width: "200px",
         flexShrink: 0,
         backgroundColor: "#cccccc",
+        zIndex: "1",
         "& .MuiDrawer-paper": {
           width: "200px",
           boxSizing: "border-box",
           height: "100%",
           top: "unset",
           backgroundColor: "#cccccc",
+          zIndex: "1",
         },
       }}
       variant="permanent"
@@ -30,14 +33,20 @@ let UseDrawer = () => {
       <Toolbar />
 
       <List>
-        {["Boards"].map((text, index) => (
-          <ListItem key={text} disablePadding sx={{ margin: "0 auto" }}>
-            <ListItemButton>
-              <ListItemIcon></ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        <Link to="/">
+          {["Boards"].map((text, index) => (
+            <ListItem
+              key={text}
+              disablePadding
+              sx={{ margin: "0 auto", color: "black", textDecoration: "none" }}
+            >
+              <ListItemButton>
+                <ListItemIcon></ListItemIcon>
+                <ListItemText primary={text} sx={{ textDecoration: "none" }} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </Link>
       </List>
     </Drawer>
   );

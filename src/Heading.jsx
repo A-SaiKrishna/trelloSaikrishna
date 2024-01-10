@@ -13,7 +13,7 @@ const Heading = ({ adding }) => {
   const logoUrl = "https://trello.com/assets/87e1af770a49ce8e84e3.gif";
   //   async function fetch
   return (
-    <Box sx={{ flexGrow: 1 }}>
+    <Box sx={{ flexGrow: 1, position: "fixed", width: "100%", zIndex: "2" }}>
       <AppBar position="static" sx={{ backgroundColor: "#cccccc" }}>
         <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           <img

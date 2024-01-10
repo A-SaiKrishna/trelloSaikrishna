@@ -3,7 +3,7 @@ import { useState } from "react";
 let CreatingBoard = ({ adding }) => {
   function postFetch(name) {
     return fetch(
-      `https://api.trello.com/1/boards/?name=${name}&key=0def6d06d0c8bdc9b4ba01ce32bb84e2&token=ATTA5d110c6193b3e78f62ffa38ba735c4130def7b4fa63fda497f959b3ab3c192f93B960E13`,
+      `https://api.trello.com/1/boards/?name=${name}&key=0def6d06d0c8bdc9b4ba01ce32bb84e2&token=ATTAe49ee4294a50ca5bba47c3ef83962ffefc20eea871c3add5192916219ec985830D59F94C`,
       {
         method: "POST",
       }
@@ -23,10 +23,10 @@ let CreatingBoard = ({ adding }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    console.log("Board Name:", boardName);
+    // console.log("Board Name:", boardName);
     postFetch(boardName).then((text) => {
-      //   console.log(text);
-      adding();
+      // console.log(text);
+      adding(JSON.parse(text));
     });
     setBoardName("");
     setDisplay({ display: "none" });
