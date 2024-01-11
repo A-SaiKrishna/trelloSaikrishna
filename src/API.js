@@ -87,3 +87,14 @@ export async function putItems(cardId, id, stateOfItem) {
     return error;
   }
 }
+export async function getBoard(id) {
+  try {
+    let response = await axiosInstance.get(
+      `boards/${id}?key=${APIKEY}&token=${APITOKEN}`
+    );
+    let data = await response.data;
+    return data;
+  } catch (error) {
+    return error;
+  }
+}

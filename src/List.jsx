@@ -12,8 +12,10 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import { TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { fetchData, postDataWithId } from "./API";
+import { fetchData, postDataWithId, getBoard } from "./API";
 let List = () => {
+  let [bg, setBg] = useState("white");
+  let [bgImg, setBgImg] = useState("");
   const { boardsId } = useParams();
   let [addList, setAddList] = useState(false);
   const [listBoard, setListBoard] = useState([]);
@@ -26,11 +28,34 @@ let List = () => {
         setListBoard(data);
       }
     });
+    getBoard(boardsId).then((data) => {
+      if (data instanceof Error) {
+        console.error("error while getting board details ", data.message);
+      } else {
+        if (data.prefs.backgroundColor === null) {
+          if (data.prefs.backgroundImage != null) {
+            setBgImg(data.prefs.backgroundImage);
+          }
+        } else {
+          setBg(data.prefs.backgroundColor);
+        }
+      }
+    });
   }, []);
 
   return (
     <>
-      <div>
+      <div
+        style={{
+          backgroundColor: bg,
+          backgroundImage: `URL(${bgImg})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          height: "100vh",
+          overflow: "auto",
+        }}
+      >
         <Heading />
         <Grid container>
           <Grid item xs={2}>

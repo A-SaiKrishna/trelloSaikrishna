@@ -13,8 +13,8 @@ let Boards = ({ data }) => {
               <div
                 className=" m-4"
                 style={{
-                  width: "12rem",
-                  height: "8rem",
+                  width: "14rem",
+                  height: "6rem",
                   backgroundColor: obj.prefs.backgroundColor
                     ? obj.prefs.backgroundColor
                     : "white",
