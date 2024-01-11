@@ -12,7 +12,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Popover from "@mui/material/Popover";
 import UserCard from "./UserCard";
-import { APITOKEN, APIKEY } from "./ApiInfo";
 import { archieveData, fetchData, postDataWithId } from "./API";
 
 let EachList = ({ object }) => {

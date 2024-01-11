@@ -72,11 +72,13 @@ let List = () => {
               }}
             >
               {listBoard.map((obj) => (
-                <EachList
-                  key={obj.id}
-                  object={obj}
-                  sx={{ flexGrow: 1, flexShrink: 0, height: "10px" }}
-                />
+                <div>
+                  <EachList
+                    key={obj.id}
+                    object={obj}
+                    sx={{ flexGrow: 1, flexShrink: 0 }}
+                  />
+                </div>
               ))}
               {addList ? (
                 <Card sx={{ width: 300, marginRight: "1.5rem", flexShrink: 0 }}>
