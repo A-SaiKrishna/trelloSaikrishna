@@ -13,70 +13,25 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Popover from "@mui/material/Popover";
 import UserCard from "./UserCard";
 import { APITOKEN, APIKEY } from "./ApiInfo";
+import { archieveData, fetchData, postDataWithId } from "./API";
 
-let EachList = ({ object, archieveList }) => {
-  //   console.log(object);
+let EachList = ({ object }) => {
   let [cardData, setCardData] = useState([]);
   let [showText, setShowText] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   let cardInput = useRef("");
-
-  async function fetchingCards() {
-    let response = await fetch(
-      `https://api.trello.com/1/lists/${object.id}/cards?key=${APIKEY}&token=${APITOKEN}`
-    );
-    let data = response.json();
-    return data;
-  }
   useEffect(() => {
-    fetchingCards().then((data) => {
-      setCardData(data);
+    fetchData("lists", "cards", object.id).then((data) => {
+      if (data instanceof Error) {
+        console.log("Error while fetching the cards in list ", data.message);
+      } else {
+        setCardData(data);
+      }
     });
   }, []);
-
-  function deletingCards(id) {
-    fetch(
-      `https://api.trello.com/1/cards/${id}?key=${APIKEY}&token=${APITOKEN}`,
-      {
-        method: "DELETE",
-      }
-    )
-      .then((response) => {
-        console.log(`Response: ${response.status} ${response.statusText}`);
-        return response.text();
-      })
-      .then((text) => {
-        console.log(text);
-        setCardData(cardData.filter((obj) => obj.id != id));
-      })
-      .catch((err) => console.error(err));
+  function updatingCardData(id) {
+    setCardData(cardData.filter((obj) => obj.id != id));
   }
-  function postCard() {
-    const data = {
-      idList: object.id,
-      name: cardInput.current,
-      key: APIKEY,
-      token: APITOKEN,
-    };
-    if (cardInput.current.length != 0)
-      fetch("https://api.trello.com/1/cards", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(data),
-      })
-        .then((response) => response.text())
-        .then((text) => {
-          //   console.log(text);
-          setCardData([...cardData, JSON.parse(text)]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  }
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -120,7 +75,7 @@ let EachList = ({ object, archieveList }) => {
                   <Button
                     sx={{ color: "black" }}
                     onClick={() => {
-                      archieveList(object.id);
+                      archieveData("lists", "archiveAllCards", object.id);
                       setCardData([]);
                     }}
                   >
@@ -130,7 +85,7 @@ let EachList = ({ object, archieveList }) => {
               </Popover>
             </div>
           </Box>
-          <UserCard cardData={cardData} deleteCard={deletingCards} />
+          <UserCard cardData={cardData} updatingCardData={updatingCardData} />
           {showText && (
             <>
               <TextField
@@ -139,13 +94,25 @@ let EachList = ({ object, archieveList }) => {
                 onChange={(e) => {
                   cardInput.current = e.target.value;
                 }}
-                // sx={{ height: "50px" }}
               />
               <Button
                 size="small"
                 onClick={() => {
                   setShowText(false);
-                  postCard();
+                  if (cardInput.current)
+                    postDataWithId("cards", {
+                      idList: object.id,
+                      name: cardInput.current,
+                    }).then((data) => {
+                      if (data instanceof Error) {
+                        console.error(
+                          "error while creating a new card ",
+                          data.message
+                        );
+                      } else {
+                        setCardData([...cardData, data]);
+                      }
+                    });
                 }}
               >
                 create

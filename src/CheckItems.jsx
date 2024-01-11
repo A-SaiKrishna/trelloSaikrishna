@@ -4,14 +4,33 @@ import Box from "@mui/system/Box";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import { useState } from "react";
-let CheckItems = ({ name, deleteItem, id, updateItem, stateItem }) => {
+import { deleteDataItem, putItems } from "./API";
+let CheckItems = ({
+  name,
+  updateItemsOnDelete,
+  listId,
+  id,
+  updateItemsOnUpdate,
+  stateItem,
+  cardId,
+}) => {
   const [isChecked, setIsChecked] = useState(
     stateItem === "complete" ? true : false
   );
   const handleCheckboxChange = (event) => {
     setIsChecked(event.target.checked);
     // console.log(event.target.checked);
-    updateItem(id, !isChecked);
+    let stateOfItem = "incomplete";
+    if (event.target.checked === true) {
+      stateOfItem = "complete";
+    }
+    putItems(cardId, id, stateOfItem).then((data) => {
+      if (data instanceof Error) {
+        console.error("error in updating the items ", data.message);
+      } else {
+        updateItemsOnUpdate(id, stateOfItem);
+      }
+    });
   };
   //   console.log(obj);
   return (
@@ -28,7 +47,16 @@ let CheckItems = ({ name, deleteItem, id, updateItem, stateItem }) => {
       />
       <Button
         onClick={() => {
-          deleteItem(id);
+          // deleteItem(id);
+          deleteDataItem("checklists", "checkItems", listId, id).then(
+            (data) => {
+              if (data instanceof Error) {
+                console.error("error in deleting the item ", data.message);
+              } else {
+                updateItemsOnDelete(id);
+              }
+            }
+          );
         }}
       >
         <DeleteIcon />

@@ -6,9 +6,8 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/system/Box";
 import CheckListPage from "./CheckListPage";
-
-let EachCard = ({ obj, deleteCard }) => {
-  // console.log(obj.id);
+import { deleteData } from "./API";
+let EachCard = ({ obj, updatingCardData }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [anchorCheck, setAnchorCheck] = useState(null);
   const handleClick = (event) => {
@@ -78,7 +77,16 @@ let EachCard = ({ obj, deleteCard }) => {
               <Button
                 sx={{ color: "black" }}
                 onClick={() => {
-                  deleteCard(obj.id);
+                  deleteData("cards", obj.id).then((data) => {
+                    if (data instanceof Error) {
+                      console.error(
+                        "error while deleting the card ",
+                        data.message
+                      );
+                    } else {
+                      updatingCardData(obj.id);
+                    }
+                  });
                 }}
               >
                 Delete

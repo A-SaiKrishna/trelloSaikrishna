@@ -13,76 +13,28 @@ import TextField from "@mui/material/TextField";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { APITOKEN, APIKEY } from "./ApiInfo";
+import { archieveData, deleteData } from "./API";
 
-let EachCheckList = ({ obj, deleteCheckList, cardId }) => {
+let EachCheckList = ({ obj, updateCheckList, cardId }) => {
   //   const [percentage, setPercentage] = useState(0);
   let inputedValue = useRef("");
   let [addItem, setAddItem] = useState(true);
   let [itemData, setItemData] = useState(obj.checkItems);
-  function postItem() {
-    if (inputedValue.length != 0)
-      fetch(
-        `https://api.trello.com/1/checklists/${obj.id}/checkItems?name=${inputedValue.current}&key=${APIKEY}&token=${APITOKEN}`,
-        {
-          method: "POST",
-        }
-      )
-        .then((response) => {
-          console.log(`Response: ${response.status} ${response.statusText}`);
-          return response.text();
-        })
-        .then((text) => {
-          setItemData([...itemData, JSON.parse(text)]);
-        })
-        .catch((err) => console.error(err));
-  }
-  function deleteItem(id) {
-    fetch(
-      `https://api.trello.com/1/checklists/${obj.id}/checkItems/${id}?key=${APIKEY}&token=${APITOKEN}`,
-      {
-        method: "DELETE",
-      }
-    )
-      .then((response) => {
-        console.log(`Response: ${response.status} ${response.statusText}`);
-        return response.text();
-      })
-      .then((text) => {
-        console.log(text);
-        setItemData(itemData.filter((obj) => obj.id != id));
-      })
-      .catch((err) => console.error(err));
-  }
-  function updateItem(id, state) {
-    let stateOfItem = "complete";
-    if (state === false) {
-      stateOfItem = "incomplete";
-    }
 
-    fetch(
-      `https://api.trello.com/1/cards/${cardId}/checkItem/${id}?key=${APIKEY}&state=${stateOfItem}&token=${APITOKEN}`,
-      {
-        method: "PUT",
-      }
-    )
-      .then((response) => {
-        console.log(`Response: ${response.status} ${response.statusText}`);
-        return response.text();
-      })
-      .then((text) => {
-        console.log(text);
-        console.log("hi");
-        setItemData(
-          itemData.map((obj) => {
-            if (obj.id === id) {
-              return { ...obj, state: stateOfItem };
-            }
-            return obj;
-          })
-        );
-      })
-      .catch((err) => console.error(err));
+  function updateItemsOnDelete(id) {
+    setItemData(itemData.filter((obj) => obj.id != id));
   }
+  function updateItemsOnUpdate(id, stateOfItem) {
+    setItemData(
+      itemData.map((obj) => {
+        if (obj.id === id) {
+          return { ...obj, state: stateOfItem };
+        }
+        return obj;
+      })
+    );
+  }
+
   let percentage = 0;
   let lengthItem = itemData.length;
   if (lengthItem != 0) {
@@ -106,7 +58,14 @@ let EachCheckList = ({ obj, deleteCheckList, cardId }) => {
           <Typography variant="h6">{obj.name}</Typography>
           <Button
             onClick={() => {
-              deleteCheckList(obj.id);
+              // deleteCheckList(obj.id);
+              deleteData("checklists", obj.id).then((data) => {
+                if (data instanceof Error) {
+                  console.error("error in deleting the checkList");
+                } else {
+                  updateCheckList(obj.id);
+                }
+              });
             }}
           >
             delete
@@ -127,10 +86,12 @@ let EachCheckList = ({ obj, deleteCheckList, cardId }) => {
             ? itemData.map((subObj) => (
                 <CheckItems
                   name={subObj.name}
-                  deleteItem={deleteItem}
+                  updateItemsOnDelete={updateItemsOnDelete}
+                  listId={obj.id}
                   id={subObj.id}
-                  updateItem={updateItem}
+                  updateItemsOnUpdate={updateItemsOnUpdate}
                   stateItem={subObj.state}
+                  cardId={cardId}
                 />
               ))
             : ""}
@@ -171,7 +132,22 @@ let EachCheckList = ({ obj, deleteCheckList, cardId }) => {
                 onClick={() => {
                   setAddItem(!addItem);
                   //   postList();
-                  postItem();
+                  // postItem();
+                  if (inputedValue.current && obj && obj.id) {
+                    let subURL = `/checklists/${obj.id}/checkItems`;
+                    archieveData("checklists", "checkItems", obj.id, {
+                      name: inputedValue.current,
+                    }).then((data) => {
+                      if (data instanceof Error) {
+                        console.error(
+                          "error while posting a new item ",
+                          data.message
+                        );
+                      } else {
+                        setItemData([...itemData, data]);
+                      }
+                    });
+                  }
                 }}
               >
                 Add Item

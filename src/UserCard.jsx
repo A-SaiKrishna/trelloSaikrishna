@@ -1,11 +1,11 @@
 import EachCard from "./EachCard";
 
 import { useState, useEffect } from "react";
-let UserCard = ({ cardData, deleteCard }) => {
+let UserCard = ({ cardData, updatingCardData }) => {
   return (
     cardData &&
     cardData.map((obj) => {
-      return <EachCard obj={obj} deleteCard={deleteCard} />;
+      return <EachCard obj={obj} updatingCardData={updatingCardData} />;
     })
   );
 };

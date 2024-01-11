@@ -1,20 +1,7 @@
 import Button from "@mui/material/Button";
 import { useState } from "react";
+import { postData } from "./API";
 let CreatingBoard = ({ adding }) => {
-  function postFetch(name) {
-    return fetch(
-      `https://api.trello.com/1/boards/?name=${name}&key=0def6d06d0c8bdc9b4ba01ce32bb84e2&token=ATTAe49ee4294a50ca5bba47c3ef83962ffefc20eea871c3add5192916219ec985830D59F94C`,
-      {
-        method: "POST",
-      }
-    )
-      .then((response) => {
-        console.log(`Response: ${response.status} ${response.statusText}`);
-        return response.text();
-      })
-      .then((text) => text)
-      .catch((err) => console.error(err));
-  }
   const [boardName, setBoardName] = useState("");
   const [display, setDisplay] = useState({ display: "none" });
   const handleInputChange = (event) => {
@@ -24,9 +11,14 @@ let CreatingBoard = ({ adding }) => {
     event.preventDefault();
 
     // console.log("Board Name:", boardName);
-    postFetch(boardName).then((text) => {
+    postData("boards", boardName).then((text) => {
+      if (text instanceof Error) {
+        console.error("Error in posting a board ", text.message);
+      }
       // console.log(text);
-      adding(JSON.parse(text));
+      else {
+        adding(text);
+      }
     });
     setBoardName("");
     setDisplay({ display: "none" });
@@ -34,11 +26,7 @@ let CreatingBoard = ({ adding }) => {
 
   return (
     <>
-      <div
-      // onMouseLeave={() => {
-      //   setDisplay({ display: "none" });
-      // }}
-      >
+      <div>
         <Button
           variant="contained"
           onClick={() => {
