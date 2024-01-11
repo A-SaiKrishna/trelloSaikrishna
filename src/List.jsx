@@ -38,15 +38,23 @@ let List = () => {
           </Grid>
           <Grid item xs={10}>
             <Box
-              display="flex"
-              flexDirection="row"
-              sx={{ paddingTop: "5rem", flex: "1", width: "1000%" }}
+              display={"flex"}
+              sx={{
+                paddingTop: "5rem",
+                flex: "1",
+                width: "100%",
+                // height: "100vh",
+              }}
             >
               {listBoard.map((obj) => (
-                <EachList object={obj} />
+                <EachList
+                  key={obj.id}
+                  object={obj}
+                  sx={{ flexGrow: 1, flexShrink: 0, height: "10px" }}
+                />
               ))}
               {addList ? (
-                <Card sx={{ width: 300, marginRight: "1.5rem" }}>
+                <Card sx={{ width: 300, marginRight: "1.5rem", flexShrink: 0 }}>
                   <CardContent>
                     <TextField
                       size="small"
@@ -56,7 +64,7 @@ let List = () => {
                       }}
                     />
                   </CardContent>
-                  <CardActions>
+                  <CardActions sx={{ flexShrink: 0 }}>
                     <Button
                       size="small"
                       startIcon={<AddIcon />}
@@ -77,6 +85,7 @@ let List = () => {
                             }
                           });
                       }}
+                      sx={{ flexShrink: 0 }}
                     >
                       Add list
                     </Button>
@@ -91,7 +100,7 @@ let List = () => {
                 </Card>
               ) : (
                 <Button
-                  sx={{ height: "3rem" }}
+                  sx={{ height: "3rem", flexShrink: 0, marginRight: 3 }}
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={() => {

@@ -49,10 +49,11 @@ let EachList = ({ object }) => {
         sx={{
           width: 300,
           marginRight: "1.5rem",
-          height: "auto",
+          // height: "content",
+          flexShrink: "0",
         }}
       >
-        <CardContent sx={{ height: "auto" }}>
+        <CardContent>
           <Box display="flex" justifyContent="space-between">
             <Typography sx={{ fontSize: 20 }} color="text.primary" gutterBottom>
               {object.name}
