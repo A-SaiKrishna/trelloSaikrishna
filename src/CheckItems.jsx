@@ -5,15 +5,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import { useState } from "react";
 import { deleteDataItem, putItems } from "./API";
-let CheckItems = ({
-  name,
-  updateItemsOnDelete,
-  listId,
-  id,
-  updateItemsOnUpdate,
-  stateItem,
-  cardId,
-}) => {
+import { ITEM_ACTIONS } from "./EachCheckList";
+let CheckItems = ({ name, listId, id, itemDispatch, stateItem, cardId }) => {
   const [isChecked, setIsChecked] = useState(
     stateItem === "complete" ? true : false
   );
@@ -28,7 +21,11 @@ let CheckItems = ({
       if (data instanceof Error) {
         console.error("error in updating the items ", data.message);
       } else {
-        updateItemsOnUpdate(id, stateOfItem);
+        // updateItemsOnUpdate(id, stateOfItem);
+        itemDispatch({
+          type: ITEM_ACTIONS.UPDATE_ITEMS,
+          payload: { id: id, stateOfItem: stateOfItem },
+        });
       }
     });
   };
@@ -53,7 +50,11 @@ let CheckItems = ({
               if (data instanceof Error) {
                 console.error("error in deleting the item ", data.message);
               } else {
-                updateItemsOnDelete(id);
+                // updateItemsOnDelete(id);
+                itemDispatch({
+                  type: ITEM_ACTIONS.DELETE_ITEMS,
+                  payload: { id: id },
+                });
               }
             }
           );

@@ -10,16 +10,34 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import { TextField } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useReducer } from "react";
 import EachCheckList from "./EachCheckList";
 import { fetchData, postDataWithId } from "./API";
+export let CHECKLIST_ACTIONS = {
+  ADD_CHECKLIST: "add_checklist",
+  UPDATE_CHECKLIST: "update_checklist",
+  REMOVE_CHECKLIST: "remove_checklist",
+};
+function reducer(state, action) {
+  switch (action.type) {
+    case CHECKLIST_ACTIONS.ADD_CHECKLIST:
+      return action.payload.data;
+    case CHECKLIST_ACTIONS.REMOVE_CHECKLIST:
+      return state.filter((eachList) => eachList.id != action.payload.id);
+    case CHECKLIST_ACTIONS.UPDATE_CHECKLIST:
+      return [...state, action.payload.data];
+    default:
+      return state;
+  }
+}
 let CheckListPage = ({ obj }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  let [checkListData, setCheckListData] = useState([]);
+  // let [checkListData, setCheckListData] = useState([]);
+  let [checkListState, checkListDispatch] = useReducer(reducer, []);
   let inputedValue = useRef("");
-  function updateCheckList(id) {
-    setCheckListData([...checkListData].filter((obj) => obj.id != id));
-  }
+  // function updateCheckList(id) {
+  //   setCheckListData([...checkListData].filter((obj) => obj.id != id));
+  // }
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -32,7 +50,11 @@ let CheckListPage = ({ obj }) => {
       if (data instanceof Error) {
         console.error("error while fetching checklists ", data.message);
       } else {
-        setCheckListData(data);
+        // setCheckListData(data);
+        checkListDispatch({
+          type: CHECKLIST_ACTIONS.ADD_CHECKLIST,
+          payload: { data: data },
+        });
       }
     });
   }, []);
@@ -49,10 +71,11 @@ let CheckListPage = ({ obj }) => {
             >
               {obj.name}
             </Typography>
-            {checkListData.map((obj1) => (
+            {checkListState.map((obj1) => (
               <EachCheckList
+                key={obj1.id}
                 obj={obj1}
-                updateCheckList={updateCheckList}
+                checkListDispatch={checkListDispatch}
                 cardId={obj.id}
               />
             ))}
@@ -102,7 +125,10 @@ let CheckListPage = ({ obj }) => {
                                 data.message
                               );
                             } else {
-                              setCheckListData([...checkListData, data]);
+                              checkListDispatch({
+                                type: CHECKLIST_ACTIONS.UPDATE_CHECKLIST,
+                                payload: { data: data },
+                              });
                             }
                           });
                       }}

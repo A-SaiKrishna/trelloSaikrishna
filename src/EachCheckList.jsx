@@ -2,24 +2,45 @@ import Box from "@mui/system/Box";
 import Typography from "@mui/material/Typography";
 import { Button } from "@mui/material";
 import LinearProgress from "@mui/material/LinearProgress";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import Paper from "@mui/material/Paper";
 import CheckItems from "./CheckItems";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardActions from "@mui/material/CardActions";
-// import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { APITOKEN, APIKEY } from "./ApiInfo";
 import { archieveData, deleteData } from "./API";
-
-let EachCheckList = ({ obj, updateCheckList, cardId }) => {
+import { CHECKLIST_ACTIONS } from "./CheckListPage";
+export const ITEM_ACTIONS = {
+  ADD_ITEM: "add_item",
+  UPDATE_ITEMS: "update_items",
+  DELETE_ITEMS: "delete_items",
+};
+function reducer(state, action) {
+  switch (action.type) {
+    case ITEM_ACTIONS.UPDATE_ITEMS:
+      return state.map((eachItem) => {
+        if (eachItem.id === action.payload.id) {
+          return { ...eachItem, state: action.payload.stateOfItem };
+        }
+        return eachItem;
+      });
+    case ITEM_ACTIONS.DELETE_ITEMS:
+      return state.filter((eachItem) => eachItem.id != action.payload.id);
+    case ITEM_ACTIONS.ADD_ITEM:
+      return [...state, action.payload.data];
+    default:
+      return state;
+  }
+}
+let EachCheckList = ({ obj, checkListDispatch, cardId }) => {
   //   const [percentage, setPercentage] = useState(0);
   let inputedValue = useRef("");
   let [addItem, setAddItem] = useState(true);
   let [itemData, setItemData] = useState(obj.checkItems);
+  let [itemState, itemDispatch] = useReducer(reducer, obj.checkItems);
 
   function updateItemsOnDelete(id) {
     setItemData(itemData.filter((obj) => obj.id != id));
@@ -36,9 +57,9 @@ let EachCheckList = ({ obj, updateCheckList, cardId }) => {
   }
 
   let percentage = 0;
-  let lengthItem = itemData.length;
+  let lengthItem = itemState.length;
   if (lengthItem != 0) {
-    let completeItems = itemData.reduce((red, pass) => {
+    let completeItems = itemState.reduce((red, pass) => {
       if (pass.state === "complete") {
         red += 1;
       }
@@ -63,7 +84,11 @@ let EachCheckList = ({ obj, updateCheckList, cardId }) => {
                 if (data instanceof Error) {
                   console.error("error in deleting the checkList");
                 } else {
-                  updateCheckList(obj.id);
+                  // updateCheckList(obj.id);
+                  checkListDispatch({
+                    type: CHECKLIST_ACTIONS.REMOVE_CHECKLIST,
+                    payload: { id: obj.id },
+                  });
                 }
               });
             }}
@@ -82,14 +107,14 @@ let EachCheckList = ({ obj, updateCheckList, cardId }) => {
           />
         </div>
         <Box display={"flex"} flexDirection={"column"}>
-          {itemData
-            ? itemData.map((subObj) => (
+          {itemState
+            ? itemState.map((subObj) => (
                 <CheckItems
+                  key={subObj.id}
                   name={subObj.name}
-                  updateItemsOnDelete={updateItemsOnDelete}
                   listId={obj.id}
                   id={subObj.id}
-                  updateItemsOnUpdate={updateItemsOnUpdate}
+                  itemDispatch={itemDispatch}
                   stateItem={subObj.state}
                   cardId={cardId}
                 />
@@ -144,7 +169,10 @@ let EachCheckList = ({ obj, updateCheckList, cardId }) => {
                           data.message
                         );
                       } else {
-                        setItemData([...itemData, data]);
+                        itemDispatch({
+                          type: ITEM_ACTIONS.ADD_ITEM,
+                          payload: { data: data },
+                        });
                       }
                     });
                   }
