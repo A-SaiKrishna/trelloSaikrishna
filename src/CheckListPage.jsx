@@ -91,7 +91,7 @@ let CheckListPage = ({ obj }) => {
                       size="small"
                       startIcon={<AddIcon />}
                       onClick={() => {
-                        if (inputedValue.current)
+                        if (inputedValue.current) {
                           postDataWithId("checklists", {
                             idCard: obj.id,
                             name: inputedValue.current,
@@ -105,6 +105,8 @@ let CheckListPage = ({ obj }) => {
                               setCheckListData([...checkListData, data]);
                             }
                           });
+                          handleClose();
+                        }
                       }}
                     >
                       Add list
