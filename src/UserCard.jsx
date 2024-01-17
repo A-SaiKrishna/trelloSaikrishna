@@ -1,7 +1,7 @@
 import EachCard from "./EachCard";
 
-import { useState, useEffect } from "react";
 let UserCard = ({ cardData, updatingCardData }) => {
+  // console.log(cardData);
   return (
     cardData &&
     cardData.map((obj) => {

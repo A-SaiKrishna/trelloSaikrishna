@@ -14,31 +14,48 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { APITOKEN, APIKEY } from "./ApiInfo";
 import { archieveData, deleteData } from "./API";
+import {
+  createItem,
+  addItems,
+  deleteItem,
+  updataItem,
+} from "./features/checkItemsSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 let EachCheckList = ({ obj, updateCheckList, cardId }) => {
   //   const [percentage, setPercentage] = useState(0);
   let inputedValue = useRef("");
   let [addItem, setAddItem] = useState(true);
   let [itemData, setItemData] = useState(obj.checkItems);
+  let checkItemSelector = useSelector((state) => state.CheckItem.checkItems);
+  let checkItemDispatch = useDispatch();
 
+  console.log(checkItemSelector);
+  checkItemSelector = checkItemSelector[obj.id]
+    ? checkItemSelector[obj.id]
+    : [];
   function updateItemsOnDelete(id) {
-    setItemData(itemData.filter((obj) => obj.id != id));
+    // setItemData(itemData.filter((obj) => obj.id != id));
+    checkItemDispatch(deleteItem({ checkListId: obj.id, id: id }));
   }
   function updateItemsOnUpdate(id, stateOfItem) {
-    setItemData(
-      itemData.map((obj) => {
-        if (obj.id === id) {
-          return { ...obj, state: stateOfItem };
-        }
-        return obj;
-      })
+    // setItemData(
+    //   itemData.map((obj) => {
+    //     if (obj.id === id) {
+    //       return { ...obj, state: stateOfItem };
+    //     }
+    //     return obj;
+    //   })
+    // );
+    checkItemDispatch(
+      updataItem({ checkListId: obj.id, id: id, stateOfItem: stateOfItem })
     );
   }
 
   let percentage = 0;
-  let lengthItem = itemData.length;
+  let lengthItem = checkItemSelector.length;
   if (lengthItem != 0) {
-    let completeItems = itemData.reduce((red, pass) => {
+    let completeItems = checkItemSelector.reduce((red, pass) => {
       if (pass.state === "complete") {
         red += 1;
       }
@@ -46,7 +63,11 @@ let EachCheckList = ({ obj, updateCheckList, cardId }) => {
     }, 0);
     percentage = Math.floor((completeItems / lengthItem) * 100);
   }
-
+  useEffect(() => {
+    checkItemDispatch(
+      createItem({ checkListId: obj.id, data: obj.checkItems })
+    );
+  }, []);
   return (
     <div className="d-flex justify-content-center">
       <Paper elevation={3} sx={{ width: "90%" }}>
@@ -82,8 +103,8 @@ let EachCheckList = ({ obj, updateCheckList, cardId }) => {
           />
         </div>
         <Box display={"flex"} flexDirection={"column"}>
-          {itemData
-            ? itemData.map((subObj) => (
+          {checkItemSelector
+            ? checkItemSelector.map((subObj) => (
                 <CheckItems
                   name={subObj.name}
                   updateItemsOnDelete={updateItemsOnDelete}
@@ -144,7 +165,10 @@ let EachCheckList = ({ obj, updateCheckList, cardId }) => {
                           data.message
                         );
                       } else {
-                        setItemData([...itemData, data]);
+                        // setItemData([...itemData, data]);
+                        checkItemDispatch(
+                          addItems({ checkListId: obj.id, data: data })
+                        );
                       }
                     });
                   }

@@ -13,23 +13,41 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import Popover from "@mui/material/Popover";
 import UserCard from "./UserCard";
 import { archieveData, fetchData, postDataWithId } from "./API";
-
+import { useDispatch, useSelector } from "react-redux";
+import { addCards, createCards, deleteCards } from "./features/cardSlice";
+import { archieveLists } from "./features/cardSlice";
+import uuid4 from "uuid4";
 let EachList = ({ object }) => {
-  let [cardData, setCardData] = useState([]);
+  // let [cardData, setCardData] = useState([]);
+  let cardSelector = useSelector((state) => state.Card.cards);
+  // console.log(cardSelector);
+  let cardData = cardSelector.filter(
+    (listOfCard) => listOfCard.id === object.id
+  );
+  cardData = cardData[0] ? cardData[0].data : [];
+  // console.log(cardData);
+  let cardDispatch = useDispatch();
   let [showText, setShowText] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  let listsDispatch = useDispatch();
   let cardInput = useRef("");
   useEffect(() => {
+    // Only fetch data if it hasn't been loaded yet
     fetchData("lists", "cards", object.id).then((data) => {
       if (data instanceof Error) {
         console.log("Error while fetching the cards in list ", data.message);
       } else {
-        setCardData(data);
+        if (data != undefined) {
+          cardDispatch(createCards({ id: object.id, data: data }));
+          // console.log(data);
+        }
       }
     });
+    // Mark data as loaded after initiating the fetch
   }, []);
   function updatingCardData(id) {
-    setCardData(cardData.filter((obj) => obj.id != id));
+    // setCardData(cardData.filter((obj) => obj.id != id));
+    cardDispatch(deleteCards({ listId: object.id, id: id }));
   }
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -76,7 +94,8 @@ let EachList = ({ object }) => {
                     sx={{ color: "black" }}
                     onClick={() => {
                       archieveData("lists", "archiveAllCards", object.id);
-                      setCardData([]);
+                      // setCardData([]);
+                      listsDispatch(archieveLists({ listId: object.id }));
                     }}
                   >
                     Archive/Delete
@@ -110,7 +129,11 @@ let EachList = ({ object }) => {
                           data.message
                         );
                       } else {
-                        setCardData([...cardData, data]);
+                        // setCardData([...cardData, data]);
+                        // console.log("hi");
+                        cardDispatch(
+                          addCards({ listId: object.id, data: data })
+                        );
                       }
                     });
                 }}

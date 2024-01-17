@@ -13,19 +13,23 @@ import CardContent from "@mui/material/CardContent";
 import { TextField } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { fetchData, postDataWithId, getBoard } from "./API";
+import { useDispatch, useSelector } from "react-redux";
+import { createLists, addLists } from "./features/listSlice";
 let List = () => {
   let [bg, setBg] = useState("white");
   let [bgImg, setBgImg] = useState("");
   const { boardsId } = useParams();
   let [addList, setAddList] = useState(false);
-  const [listBoard, setListBoard] = useState([]);
+  let listSelector = useSelector((state) => state.List.lists);
+  let listDispatch = useDispatch();
   const inputedValue = useRef("");
   useEffect(() => {
     fetchData("boards", "lists", boardsId).then((data) => {
       if (data instanceof Error) {
         console.log("Error while fetching the list ", data.message);
       } else {
-        setListBoard(data);
+        // setListBoard(data);
+        listDispatch(createLists(data));
       }
     });
     getBoard(boardsId).then((data) => {
@@ -71,15 +75,16 @@ let List = () => {
                 // height: "100vh",
               }}
             >
-              {listBoard.map((obj) => (
-                <div>
-                  <EachList
-                    key={obj.id}
-                    object={obj}
-                    sx={{ flexGrow: 1, flexShrink: 0 }}
-                  />
-                </div>
-              ))}
+              {listSelector &&
+                listSelector.map((obj) => (
+                  <div key={obj.id}>
+                    <EachList
+                      object={obj}
+                      sx={{ flexGrow: 1, flexShrink: 0 }}
+                      key={obj.id}
+                    />
+                  </div>
+                ))}
               {addList ? (
                 <Card sx={{ width: 300, marginRight: "1.5rem", flexShrink: 0 }}>
                   <CardContent>
@@ -108,7 +113,8 @@ let List = () => {
                                 data.message
                               );
                             } else {
-                              setListBoard([...listBoard, data]);
+                              // setListBoard([...listBoard, data]);
+                              listDispatch(addLists(data));
                             }
                           });
                       }}

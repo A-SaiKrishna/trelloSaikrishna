@@ -13,12 +13,25 @@ import AddIcon from "@mui/icons-material/Add";
 import { useRef, useEffect, useState } from "react";
 import EachCheckList from "./EachCheckList";
 import { fetchData, postDataWithId } from "./API";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createCheckList,
+  addCheckList,
+  deleteCheckList,
+} from "./features/checkListSlice";
 let CheckListPage = ({ obj }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  let [checkListData, setCheckListData] = useState([]);
+  // let [checkListData, setCheckListData] = useState([]);
+  let checkListSelector = useSelector((state) => state.CheckList.checkList);
+  // console.log(checkListSelector[obj.id]);
+  checkListSelector = checkListSelector[obj.id]
+    ? checkListSelector[obj.id]
+    : [];
+  let checkListDispatch = useDispatch();
   let inputedValue = useRef("");
   function updateCheckList(id) {
-    setCheckListData([...checkListData].filter((obj) => obj.id != id));
+    // setCheckListData([...checkListData].filter((obj) => obj.id != id));
+    checkListDispatch(deleteCheckList({ cardId: obj.id, id: id }));
   }
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -32,7 +45,8 @@ let CheckListPage = ({ obj }) => {
       if (data instanceof Error) {
         console.error("error while fetching checklists ", data.message);
       } else {
-        setCheckListData(data);
+        // setCheckListData(data);
+        checkListDispatch(createCheckList({ cardId: obj.id, data: data }));
       }
     });
   }, []);
@@ -49,8 +63,9 @@ let CheckListPage = ({ obj }) => {
             >
               {obj.name}
             </Typography>
-            {checkListData.map((obj1) => (
+            {checkListSelector.map((obj1) => (
               <EachCheckList
+                key={obj1.id}
                 obj={obj1}
                 updateCheckList={updateCheckList}
                 cardId={obj.id}
@@ -102,7 +117,10 @@ let CheckListPage = ({ obj }) => {
                                 data.message
                               );
                             } else {
-                              setCheckListData([...checkListData, data]);
+                              // setCheckListData([...checkListData, data]);
+                              checkListDispatch(
+                                addCheckList({ cardId: obj.id, data: data })
+                              );
                             }
                           });
                           handleClose();

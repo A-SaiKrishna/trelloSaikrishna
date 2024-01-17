@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from "react-router-dom";
 let Boards = ({ data }) => {
-  return data.length === 0 ? (
+  return !data ? (
     <h1>no boards</h1>
   ) : (
     <>
@@ -9,7 +9,11 @@ let Boards = ({ data }) => {
       <div className="d-flex flex-wrap">
         {data.map((obj) => {
           return (
-            <Link to={`boards/${obj.id}`} style={{ textDecoration: "none" }}>
+            <Link
+              to={`boards/${obj.id}`}
+              style={{ textDecoration: "none" }}
+              key={obj.id}
+            >
               <div
                 className=" m-4"
                 style={{
